@@ -63,6 +63,6 @@ ggplot(data = shapes) +
   
   #Adding a title that includes the date shown in the present frame
   
-  ggtitle("Gunshots Fired in Fresco, California on {frame_time}")
+  ggtitle("Gunshots Fired in Fresno, California on {frame_time}")
 
 
