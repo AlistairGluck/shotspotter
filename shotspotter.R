@@ -48,18 +48,21 @@ ggplot(data = shapes) +
                         low = "mediumblue", 
                         high = "orangered3") + 
   theme(legend.position = c(0.8, 0.1)) +
-  theme_map() +
   theme(panel.grid.major = element_line(colour = "white")) +
   theme(plot.title = element_text(hjust = 0.5)) +
-  #Colouring the map gridlines white
+  theme_map() +
+  
   #Making each data a different frame in the animation
+  
   transition_time(date_shot) + 
   ease_aes() +
-  #Leaving each previous frame as a permanent mark on the map
-  shadow_mark(past = TRUE) +
-  #Adding a title that includes the date shown in the present frame
-  ggtitle("Gunshots Fired in Fresco, California on {frame_time}")
   
-
+  #Leaving each previous frame as a permanent mark on the map
+  
+  shadow_mark(past = TRUE) +
+  
+  #Adding a title that includes the date shown in the present frame
+  
+  ggtitle("Gunshots Fired in Fresco, California on {frame_time}")
 
 
