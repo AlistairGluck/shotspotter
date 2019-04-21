@@ -20,6 +20,9 @@ library(transformr)
 library(ggthemes)
 
 
+shapes <- urban_areas(class = "sf") %>%
+  filter(NAME10 == "Fresno, CA")
+
 fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_sst.csv", col_types = cols(
   address = col_character(),
   city = col_character(),
@@ -31,8 +34,7 @@ fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_
   long = col_double()
 ))
 
-shapes <- urban_areas(class = "sf") %>%
-  filter(NAME10 == "Fresno, CA")
+
 
 fresno <- fresno %>%
   mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M:%OS"))
@@ -63,7 +65,9 @@ ui <- fluidPage(
    sidebarLayout(
       sidebarPanel(
             selectInput(inputId = "shot_locations",
-                     label = "Number of shots", choices = "locations")
+                     label = "Number of shots", choices = "locations"),
+            selectInput(inputId = "shapes", 
+                        label = "map_background", choices = "shapes")
        ),
      
       # Show a plot of the generated distribution
@@ -78,9 +82,9 @@ server <- function(input, output) {
    
    output$map <- renderPlot({
 
-     fresno_map <- ggplot(data = shapes) + 
-       geom_sf() +
-       geom_sf(locations, aes(colour = numrounds, alpha = 0.6)) + 
+     fresno_map <- ggplot() + 
+       geom_sf(input$shapes) +
+       geom_sf(input$shot_locations, aes(colour = numrounds, alpha = 0.6)) + 
        labs(caption = "Source: Justice Tech Lab ShotSpotter Data") +
        guides(alpha = FALSE) +
        scale_colour_gradient(name = "Rounds Fired", 
