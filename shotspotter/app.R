@@ -20,8 +20,7 @@ library(transformr)
 library(ggthemes)
 
 
-shapes <- urban_areas(class = "sf") %>%
-  filter(NAME10 == "Fresno, CA")
+
 
 fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_sst.csv", col_types = cols(
   address = col_character(),
@@ -81,8 +80,38 @@ ui <- fluidPage(
 server <- function(input, output) {
    
    output$map <- renderPlot({
-
-     fresno_map <- ggplot() + 
+      shapes <- urban_areas(class = "sf") %>%
+       filter(NAME10 == "Fresno, CA")
+     
+      fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_sst.csv", col_types = cols(
+        address = col_character(),
+        city = col_character(),
+        state = col_character(),
+        datetime = col_character(),
+        numrounds = col_double(),
+        shotspotterflexid = col_double(),
+        lat = col_double(),
+        long = col_double()
+      ))
+      
+      fresno <- fresno %>%
+        mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M:%OS"))
+      
+      fresno <- fresno[!(duplicated(fresno[["shotspotterflexid"]])), ]
+      
+      fresno_final <- fresno %>%
+        select(long, lat, numrounds, datetime) %>%
+        filter(!is.na(lat)) %>%
+        filter(!is.na(long)) %>%
+        filter(long > -120 & long < -119.45) %>%
+        filter(lat > 36.5 & lat < 37) %>%
+        mutate(date_shot = date(datetime)) %>%
+        arrange(date_shot) 
+      
+      locations <- st_as_sf(fresno_final, coords = c("long", "lat"), crs = 4326)
+      
+      
+      fresno_map <- ggplot() + 
        geom_sf(input[["shapes"]]) +
        geom_sf(input[["shot_locations"]], aes(colour = numrounds, alpha = 0.6)) + 
        labs(caption = "Source: Justice Tech Lab ShotSpotter Data") +
