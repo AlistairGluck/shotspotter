@@ -39,7 +39,7 @@ fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_
 fresno <- fresno %>%
   mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M:%OS"))
 
-fresno <- fresno[!(duplicated(fresno$shotspotterflexid)), ]
+fresno <- fresno[!(duplicated(fresno[["shotspotterflexid"]])), ]
 
 fresno_final <- fresno %>%
   select(long, lat, numrounds, datetime) %>%
@@ -83,8 +83,8 @@ server <- function(input, output) {
    output$map <- renderPlot({
 
      fresno_map <- ggplot() + 
-       geom_sf(input$shapes) +
-       geom_sf(input$shot_locations, aes(colour = numrounds, alpha = 0.6)) + 
+       geom_sf(input[["shapes"]]) +
+       geom_sf(input[["shot_locations"]], aes(colour = numrounds, alpha = 0.6)) + 
        labs(caption = "Source: Justice Tech Lab ShotSpotter Data") +
        guides(alpha = FALSE) +
        scale_colour_gradient(name = "Rounds Fired", 
