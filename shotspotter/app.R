@@ -20,7 +20,8 @@ library(transformr)
 library(ggthemes)
 
 
-
+shapes <- urban_areas(class = "sf") %>%
+  filter(NAME10 == "Fresno, CA")
 
 fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_sst.csv", col_types = cols(
   address = col_character(),
@@ -33,40 +34,43 @@ fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_
   long = col_double()
 ))
 
-
-
 fresno <- fresno %>%
   mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M:%OS"))
 
 fresno <- fresno[!(duplicated(fresno[["shotspotterflexid"]])), ]
 
-fresno_final <- fresno %>%
-  select(long, lat, numrounds, datetime) %>%
-  filter(!is.na(lat)) %>%
-  filter(!is.na(long)) %>%
-  filter(long > -120 & long < -119.45) %>%
-  filter(lat > 36.5 & lat < 37) %>%
-  mutate(date_shot = date(datetime)) %>%
-  arrange(date_shot) 
-
-locations <- st_as_sf(fresno_final, coords = c("long", "lat"), crs = 4326)
+ 
 
 
-# Define UI for application that draws a histogram
+
+
+# Define UI for application that draws a map of fresno
 ui <- fluidPage(
    
    # Application title
-   titlePanel("Gunshots Fired in Fresno, California"),
+   titlePanel("Shooting Incidents in Fresno, California from 2015-2018"),
+   
    
    
    
    #Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(
-            selectInput(inputId = "shot_locations",
-                     label = "Number of shots", choices = "locations"),
-            selectInput(inputId = "shapes", 
-                        label = "map_background", choices = "shapes")
+        tags$h4(helpText("Select the range of shots fired per shooting incident to be included on the map. 
+                         The maximum number is 83, the minimum is 1.")),
+            numericInput(inputId = "minshots",
+                     label = "Lower end of range of shots",
+                     value = 1,
+                     min = 1, 
+                     max = 83),
+            numericInput(inputId = "maxshots", 
+                        label = "Higher end of range of shots",
+                        value = 83,
+                        min = 1, 
+                        max = 83),
+        tags$h6(helpText("If you receive an error message, it likely means that either you have not selected the minimum or maximum, 
+                        or that there are no shooting incidents in the selected range 
+                         (there are very few incidents at the higher end of the range)."))
        ),
      
       # Show a plot of the generated distribution
@@ -80,40 +84,22 @@ ui <- fluidPage(
 server <- function(input, output) {
    
    output$map <- renderPlot({
-      shapes <- urban_areas(class = "sf") %>%
-       filter(NAME10 == "Fresno, CA")
-     
-      fresno <- read_csv("http://justicetechlab.org/wp-content/uploads/2018/09/fresno_sst.csv", col_types = cols(
-        address = col_character(),
-        city = col_character(),
-        state = col_character(),
-        datetime = col_character(),
-        numrounds = col_double(),
-        shotspotterflexid = col_double(),
-        lat = col_double(),
-        long = col_double()
-      ))
-      
-      fresno <- fresno %>%
-        mutate(datetime = as.POSIXct(datetime, format = "%m/%d/%Y %H:%M:%OS"))
-      
-      fresno <- fresno[!(duplicated(fresno[["shotspotterflexid"]])), ]
-      
+    
       fresno_final <- fresno %>%
-        select(long, lat, numrounds, datetime) %>%
-        filter(!is.na(lat)) %>%
-        filter(!is.na(long)) %>%
-        filter(long > -120 & long < -119.45) %>%
-        filter(lat > 36.5 & lat < 37) %>%
-        mutate(date_shot = date(datetime)) %>%
-        arrange(date_shot) 
-      
+       select(long, lat, numrounds, datetime) %>%
+       filter(!is.na(lat)) %>%
+       filter(!is.na(long)) %>%
+       filter(long > -120 & long < -119.45) %>%
+       filter(lat > 36.5 & lat < 37) %>%
+       mutate(date_shot = date(datetime)) %>%
+       arrange(date_shot) %>% 
+        filter(input$minshots <= numrounds & numrounds <= input$maxshots)
+     
       locations <- st_as_sf(fresno_final, coords = c("long", "lat"), crs = 4326)
       
-      
-      fresno_map <- ggplot() + 
-       geom_sf(input[["shapes"]]) +
-       geom_sf(input[["shot_locations"]], aes(colour = numrounds, alpha = 0.6)) + 
+      map_fresno <- ggplot(data = shapes) + 
+       geom_sf() +
+       geom_sf(data = locations, aes(colour = numrounds, alpha = 0.6)) + 
        labs(caption = "Source: Justice Tech Lab ShotSpotter Data") +
        guides(alpha = FALSE) +
        scale_colour_gradient(name = "Rounds Fired", 
@@ -122,22 +108,9 @@ server <- function(input, output) {
        theme(legend.position = c(0.8, 0.1)) +
        theme(panel.grid.major = element_line(colour = "white")) +
        theme(plot.title = element_text(hjust = 0.5)) +
-       theme_map() +
-       
-       #Making each data a different frame in the animation
-       
-       transition_time(date_shot) + 
-       ease_aes() +
-       
-       #Leaving each previous frame as a permanent mark on the map
-       
-       shadow_mark(past = TRUE) +
-       
-       #Adding a title that includes the date shown in the present frame
-       
-       ggtitle("Gunshots Fired in Fresno, California on {frame_time}")
-     
-     fresno_map
+       theme_map()
+      
+      map_fresno
    })
 }
 
