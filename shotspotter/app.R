@@ -56,7 +56,7 @@ ui <- fluidPage(tabsetPanel(
    
    sidebarLayout(
       sidebarPanel(
-        tags$h4(helpText("Select the range of shots fired per shooting incident to be included on the map. 
+        tags$h4(helpText("Select the range of shots fired per shooting incident. 
                          The maximum number is 83, the minimum is 1.")),
             numericInput(inputId = "minshots",
                      label = "Minimum Number of Rounds Fired",
@@ -76,13 +76,14 @@ ui <- fluidPage(tabsetPanel(
       # Show a plot of the generated distribution
       mainPanel(
         plotOutput(outputId = "map"),
-        tags$h6(helpText("Each point represents an incident of gunfire, the color represents rounds fired (number of shots). \nFind the code here:")),
-        tags$link("https://github.com/AlistairGluck/shotspotter")
+        tags$h6(helpText("Each point represents an incident of gunfire, and the color represents rounds fired (the number of shots). \nFind the code here:")),
+        tags$link("https://github.com/AlistairGluck/shotspotter"),
+        tags$h5(helpText("By Alistair Gluck and Dasha Metropolitansky"))
        ))
     ),
   tabPanel("Animated Graphic",
-           basicPage(imageOutput("animated_map")))
-))
+           basicPage(imageOutput("animated_map"))
+)))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {

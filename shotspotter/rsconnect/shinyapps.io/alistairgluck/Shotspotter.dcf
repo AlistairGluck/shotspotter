@@ -1,12 +1,12 @@
-name: Shotspotter
-title: Shotspotter
+name: shotspotter
+title: shotspotter
 username:
 account: alistairgluck
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 883449
-bundleId: 2031441
+bundleId: 2031535
 url: https://alistairgluck.shinyapps.io/Shotspotter/
-when: 1555989211.39885
+when: 1555991926.93465
 asMultiple: FALSE
 asStatic: FALSE
