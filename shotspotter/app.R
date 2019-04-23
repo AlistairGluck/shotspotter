@@ -39,32 +39,31 @@ fresno <- fresno %>%
 
 fresno <- fresno[!(duplicated(fresno[["shotspotterflexid"]])), ]
 
- 
-
-
-
 
 # Define UI for application that draws a map of fresno
+
 ui <- fluidPage(
    
    # Application title
+  
    titlePanel("Shooting Incidents in Fresno, California from 2015-2018"),
    
    
    
    
-   #Sidebar with a slider input for number of bins 
+   #Sidebar with a two numeric input for number of shots per incident 
+   
    sidebarLayout(
       sidebarPanel(
         tags$h4(helpText("Select the range of shots fired per shooting incident to be included on the map. 
                          The maximum number is 83, the minimum is 1.")),
             numericInput(inputId = "minshots",
-                     label = "Lower end of range of shots",
+                     label = "Minimum of range of shots",
                      value = 1,
                      min = 1, 
                      max = 83),
             numericInput(inputId = "maxshots", 
-                        label = "Higher end of range of shots",
+                        label = "Maximum of range of shots",
                         value = 83,
                         min = 1, 
                         max = 83),
@@ -75,7 +74,9 @@ ui <- fluidPage(
      
       # Show a plot of the generated distribution
       mainPanel(
-        plotOutput(outputId = "map")
+        plotOutput(outputId = "map"),
+        tags$h6(helpText("Each point represents an incident of gunfire, the color represents rounds fired (number of shots). \nFind the code here:")),
+        tags$link("https://github.com/AlistairGluck/shotspotter")
        )
     )
 )
