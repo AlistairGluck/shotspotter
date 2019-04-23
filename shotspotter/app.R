@@ -39,10 +39,11 @@ fresno <- fresno %>%
 
 fresno <- fresno[!(duplicated(fresno[["shotspotterflexid"]])), ]
 
-
 # Define UI for application that draws a map of fresno
 
-ui <- fluidPage(
+ui <- fluidPage(tabsetPanel(
+  
+  tabPanel("Choose the Range",
    
    # Application title
   
@@ -58,12 +59,12 @@ ui <- fluidPage(
         tags$h4(helpText("Select the range of shots fired per shooting incident to be included on the map. 
                          The maximum number is 83, the minimum is 1.")),
             numericInput(inputId = "minshots",
-                     label = "Minimum of range of shots",
+                     label = "Minimum Number of Rounds Fired",
                      value = 1,
                      min = 1, 
                      max = 83),
             numericInput(inputId = "maxshots", 
-                        label = "Maximum of range of shots",
+                        label = "Maximum Number of Rounds Fired",
                         value = 83,
                         min = 1, 
                         max = 83),
@@ -77,9 +78,11 @@ ui <- fluidPage(
         plotOutput(outputId = "map"),
         tags$h6(helpText("Each point represents an incident of gunfire, the color represents rounds fired (number of shots). \nFind the code here:")),
         tags$link("https://github.com/AlistairGluck/shotspotter")
-       )
-    )
-)
+       ))
+    ),
+  tabPanel("Animated Graphic",
+           basicPage(imageOutput("animated_map")))
+))
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
@@ -113,6 +116,11 @@ server <- function(input, output) {
       
       map_fresno
    })
+   output$animated_map <- renderImage({
+
+     list(src = "fresno.gif",
+          contentType = 'image/gif')
+   }, deleteFile = FALSE)
 }
 
 # Run the application 

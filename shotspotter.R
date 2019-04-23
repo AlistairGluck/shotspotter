@@ -66,3 +66,6 @@ ggplot(data = shapes) +
   ggtitle("Gunshots Fired in Fresno, California on {frame_time}")
 
 
+anim_save("shotspotter/fresno.gif", animation = last_animation())
+
+

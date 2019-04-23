@@ -1,0 +1,12 @@
+name: shotspotter_fresno
+title: shotspotter_fresno
+username:
+account: alistairgluck
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 883560
+bundleId: 2031455
+url: https://alistairgluck.shinyapps.io/shotspotter_fresno/
+when: 1555989547.39371
+asMultiple: FALSE
+asStatic: FALSE
